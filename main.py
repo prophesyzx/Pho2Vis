@@ -27,7 +27,9 @@ def main(args):
     train_set = ImageDataset(image_dir, label_path, transform)
     train_loader = DataLoader(train_set, batch_size=32, shuffle=True)
 
-    test_set = ImageDataset(image_dir, label_path)
+    test_dir = ""
+    test_path = ""
+    test_set = ImageDataset(test_dir, test_path)
     test_loader = DataLoader(test_set, batch_size=32, shuffle=False)
 
     # 加载预训练的DenseNet模型并修改为回归模型
