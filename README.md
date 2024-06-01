@@ -23,3 +23,8 @@
 3. **训练过程**：将两张不同曝光度的图像在宽度上拼接，然后输入模型中，在第一个fc层前得到高维向量，将它与AOD、RH指标拼接，再输入到全连接层进行训练
 4. **训练参数**：lr:1e-3，epoch:100，batch size:32，Loss:MSE，训练平台：kaggle
 5. **训练结果**：![image](results/train_history.png)
+5. **训练结果**：![image](results/train_history.png)
+  对数据进行min-2369.3, max-15000.0归一化后的最佳MSE是0.00413676192031496
+  那么回到原来的数据，其误差分别为：
+- MSE: 1248030.39
+- RMSE: 1117.15
