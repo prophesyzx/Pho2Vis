@@ -50,12 +50,13 @@ def main():
 
     num_epochs = 100
     best_loss = 10000000000000
+    best_predictions = []
     train_losses = []
     test_losses = []
     for i in range(num_epochs):
         train_loss,checkpoint = train(train_loader, model, criterion, optimizer, scheduler, i)
 
-        test_loss = eval(test_loader, model, criterion, i)
+        test_loss, all_predictions, all_targets = eval(test_loader, model, criterion, i)
         train_losses.append(train_loss)
         test_losses.append(test_loss)
         if test_loss < best_loss:
@@ -66,6 +67,11 @@ def main():
         w.write(f"Epoch\tTrain Loss\tTest Loss\n")
         for i in range(num_epochs):
             w.write(f"{i}\t{train_losses[i]}\t{test_losses[i]}\n")
+            
+    with open("target_and_pediction.txt", "w", encoding="utf-8") as f:
+        f.write(f"Target\tPrediction\n")
+        for i in range(len(all_targets)):
+            f.write(f"{all_targets[i]}\t{best_predictions[i]}\n")
 
 
 def train(train_loader, model, criterion, optimizer, scheduler, epoch):
