@@ -163,4 +163,4 @@ def eval(test_loader, model, criterion, epoch):
 
 
 if __name__ == '__main__':
-    main()
+    main(args)
