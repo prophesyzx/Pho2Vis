@@ -71,6 +71,8 @@ def main():
             
     with open("target_and_pediction.txt", "w", encoding="utf-8") as f:
         f.write(f"Target\tPrediction\n")
+        all_targets = [x * (15000-2369.3) + 2369.3 for x in all_targets]
+        all_predictions = [x * (15000-2369.3) + 2369.3 for x in all_predictions]
         for i in range(len(all_targets)):
             f.write(f"{all_targets[i]}\t{best_predictions[i]}\n")
 
@@ -142,7 +144,7 @@ def eval(test_loader, model, criterion, epoch):
             f'{"*"*10} Epoch: [{epoch + 1}] | Test Loss: {epoch_loss} | Elapsed Time: {epoch_time}s {"*"*10}')
         all_predictions = np.concatenate(all_predictions, axis=0).ravel()
         all_targets = np.concatenate(all_targets, axis=0).ravel()
-        return epoch_loss, all_predictions, all_targets
+        return epoch_loss, all_predictions.tolist(), all_targets.tolist()
 
 
 if __name__ == '__main__':
