@@ -59,6 +59,7 @@ def main(args):
         checkpoint = torch.load(args.resume, map_location=device)
         state_dict = checkpoint['model_state_dict']
         model.load_state_dict(state_dict)
+        i = checkpoint['epoch']
         test_loss, all_predictions, all_targets = eval(test_loader, model, criterion, i)
         best_predictions = all_predictions
         with open("target_and_pediction.txt", "w", encoding="utf-8") as f:
