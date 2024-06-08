@@ -72,7 +72,7 @@ def main():
     with open("target_and_pediction.txt", "w", encoding="utf-8") as f:
         f.write(f"Target\tPrediction\n")
         all_targets = [x * (15000-2369.3) + 2369.3 for x in all_targets]
-        all_predictions = [x * (15000-2369.3) + 2369.3 for x in all_predictions]
+        best_predictions = [x * (15000-2369.3) + 2369.3 for x in best_predictions]
         for i in range(len(all_targets)):
             f.write(f"{all_targets[i]}\t{best_predictions[i]}\n")
 
