@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from load_data import ImageDataset
 from model import DenseNet
+import numpy as np
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -109,6 +110,8 @@ def eval(test_loader, model, criterion, epoch):
 
     with torch.no_grad():
         running_loss = 0.0
+        all_predictions = []
+        all_targets = []
         start_time = time.time()
         for i, (aod, rh, images, target) in enumerate(test_loader):
             images, target, rh, aod = images.to(device), target.to(device), rh.to(device), aod.to(device)
@@ -117,6 +120,10 @@ def eval(test_loader, model, criterion, epoch):
 
             # 累加总损失
             running_loss += loss.item()
+            
+            all_predictions.append(output.cpu().numpy())
+            all_targets.append(target.cpu().numpy())
+            
             end_time = time.time()
             if (i + 1) % 5 == 0:
                 total_time = end_time - start_time
@@ -126,7 +133,9 @@ def eval(test_loader, model, criterion, epoch):
         epoch_time = time.time() - start_time
         print(
             f'{"*"*10} Epoch: [{epoch + 1}] | Test Loss: {epoch_loss} | Elapsed Time: {epoch_time}s {"*"*10}')
-        return epoch_loss
+        all_predictions = np.concatenate(all_predictions, axis=0).ravel()
+        all_targets = np.concatenate(all_targets, axis=0).ravel()
+        return epoch_loss, all_predictions, all_targets
 
 
 if __name__ == '__main__':
