@@ -1,4 +1,4 @@
-# import argparse
+import argparse
 import time
 import torch
 import torch.nn as nn
@@ -11,9 +11,11 @@ from model import DenseNet
 import numpy as np
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-
-def main():
+parser = argparse.ArgumentParser(description='PyTorch Training')
+parser.add_argument('--resume', default='', type=str, metavar='PATH',
+                    help='path to best checkpoint (default: none)')
+args = parser.parse_args()
+def main(args):
     # 加载数据
     image_dir = "/kaggle/input/pho2vit/new_May_25/train_mask_rename"
     label_path = "/kaggle/input/pho2vit/new_May_25/train_labels.csv"
@@ -53,28 +55,41 @@ def main():
     best_predictions = []
     train_losses = []
     test_losses = []
-    for i in range(num_epochs):
-        train_loss,checkpoint = train(train_loader, model, criterion, optimizer, scheduler, i)
-
+    if args.resume:
+        checkpoint = torch.load(args.resume, map_location=device)
+        state_dict = checkpoint['model_state_dict']
+        model.load_state_dict(state_dict)
         test_loss, all_predictions, all_targets = eval(test_loader, model, criterion, i)
-        train_losses.append(train_loss)
-        test_losses.append(test_loss)
-        if test_loss < best_loss:
-            best_loss = test_loss
-            best_predictions = all_predictions
-            torch.save(checkpoint, "best_train_model.pth")
-            
-    with open("model_history.txt", "w", encoding='utf-8') as w:
-        w.write(f"Epoch\tTrain Loss\tTest Loss\n")
+        best_predictions = all_predictions
+        with open("target_and_pediction.txt", "w", encoding="utf-8") as f:
+            f.write(f"Target\tPrediction\n")
+            all_targets = [x * (15000-2369.3) + 2369.3 for x in all_targets]
+            best_predictions = [x * (15000-2369.3) + 2369.3 for x in best_predictions]
+            for i in range(len(all_targets)):
+                f.write(f"{all_targets[i]}\t{best_predictions[i]}\n")
+    else:
         for i in range(num_epochs):
-            w.write(f"{i}\t{train_losses[i]}\t{test_losses[i]}\n")
-            
-    with open("target_and_pediction.txt", "w", encoding="utf-8") as f:
-        f.write(f"Target\tPrediction\n")
-        all_targets = [x * (15000-2369.3) + 2369.3 for x in all_targets]
-        best_predictions = [x * (15000-2369.3) + 2369.3 for x in best_predictions]
-        for i in range(len(all_targets)):
-            f.write(f"{all_targets[i]}\t{best_predictions[i]}\n")
+            train_loss,checkpoint = train(train_loader, model, criterion, optimizer, scheduler, i)
+
+            test_loss, all_predictions, all_targets = eval(test_loader, model, criterion, i)
+            train_losses.append(train_loss)
+            test_losses.append(test_loss)
+            if test_loss < best_loss:
+                best_loss = test_loss
+                best_predictions = all_predictions
+                torch.save(checkpoint, "best_train_model.pth")
+
+        with open("model_history.txt", "w", encoding='utf-8') as w:
+            w.write(f"Epoch\tTrain Loss\tTest Loss\n")
+            for i in range(num_epochs):
+                w.write(f"{i}\t{train_losses[i]}\t{test_losses[i]}\n")
+                
+        with open("target_and_pediction.txt", "w", encoding="utf-8") as f:
+            f.write(f"Target\tPrediction\n")
+            all_targets = [x * (15000-2369.3) + 2369.3 for x in all_targets]
+            best_predictions = [x * (15000-2369.3) + 2369.3 for x in best_predictions]
+            for i in range(len(all_targets)):
+                f.write(f"{all_targets[i]}\t{best_predictions[i]}\n")
 
 
 def train(train_loader, model, criterion, optimizer, scheduler, epoch):
