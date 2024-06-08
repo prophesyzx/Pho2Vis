@@ -61,6 +61,7 @@ def main():
         test_losses.append(test_loss)
         if test_loss < best_loss:
             best_loss = test_loss
+            best_predictions = all_predictions
             torch.save(checkpoint, "best_train_model.pth")
             
     with open("model_history.txt", "w", encoding='utf-8') as w:
